@@ -1,0 +1,360 @@
+{
+  "name": "Workflow 1 - New Client Onboarding",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "New Client Onboarding",
+        "formDescription": "Add a new client to start onboarding.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Client Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Selected Service ",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Social Media Marketing"
+                  },
+                  {
+                    "option": "SEO"
+                  },
+                  {
+                    "option": " Paid Ads"
+                  },
+                  {
+                    "option": "Content Marketing"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c46a8b8e-df48-4098-a9eb-a10bd4f5b278",
+      "name": "New Client Onboarding ",
+      "webhookId": "98d69391-5443-4df6-bf4e-189ce4f0f01c"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "967f1beb-5fb1-4148-9e67-f996f1898076",
+              "leftValue": "={{ $json['Client Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "5e70957d-b8ac-41eb-81ef-90041b805d05",
+              "leftValue": "={{ $json['Company Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "326c28e2-5d7a-44c1-80ed-a1de24419f25",
+              "leftValue": "={{ $json['Email'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "35192670-9dc3-400f-9b01-325c53d93217",
+              "leftValue": "={{ $json['Email'] }}",
+              "rightValue": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bafd36a1-9e1c-44dd-82f9-9a44362934b1",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        448,
+        96
+      ],
+      "id": "148b7935-0270-4ba5-bc7d-ab7ccf10e5e4",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "clients",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json['Email'] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -96
+      ],
+      "id": "4c60d130-2293-448c-8810-6999e1d84341",
+      "name": "Get many rows",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "eOs97ZpOKNUH3Yi0",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "df34d4ac-926c-40c9-8cce-ecf875399e62",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": "=0",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "61b06438-75db-4d38-99f0-26bbd5d868f1",
+      "name": "Check Duplicate."
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        896,
+        0
+      ],
+      "id": "1b818e47-a5fd-46ec-9be7-88376e052514",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "tableId": "clients",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "client_name",
+              "fieldValue": "={{ $('New Client Onboarding ').item.json['Client Name'] }}"
+            },
+            {
+              "fieldId": "company_name",
+              "fieldValue": "={{ $('New Client Onboarding ').item.json['Company Name'] }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('New Client Onboarding ').item.json.Email }}"
+            },
+            {
+              "fieldId": "service",
+              "fieldValue": "={{ $('New Client Onboarding ').item.json['Selected Service '] }}"
+            },
+            {
+              "fieldId": "onboarding_status",
+              "fieldValue": "onboarding_started"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -192
+      ],
+      "id": "baa2ae41-a63e-4e14-84f8-ebc3ab4a5c17",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "eOs97ZpOKNUH3Yi0",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "codewithfarhan07@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Welcome to GrowthFlow Agency!",
+        "html": "=Hi,{{ $json.client_name }} ,<br><br> Welcome to GrowthFlow Agency! We're excited to work with {{ $json.company_name }}.<br><br> Please complete the onboarding form using the link below so we can begin setting up your project.<br><br> [Onboarding Form Link-\n<br><br> Best,<br>GrowthFlow Agency",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        -192
+      ],
+      "id": "ed9479ec-64b5-4b10-8ef4-c9cb1365d64f",
+      "name": "Send an Email",
+      "webhookId": "123ca4c4-e100-44f9-bed6-d3d235d06673",
+      "credentials": {
+        "smtp": {
+          "id": "gIdgHY48yLH5STTa",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Client Onboarding ": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate.": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ac664167-85c6-4cf3-a41d-dd2d10d70fd6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b0cfee14665af0b55242b7392a2beead508d6933eb9884059ba61c7572e78855"
+  },
+  "nodeGroups": [],
+  "id": "KTDmde1ni6XTHXFA",
+  "tags": []
+}

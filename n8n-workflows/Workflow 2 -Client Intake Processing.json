@@ -1,0 +1,483 @@
+{
+  "name": "Workflow 2 -Client Intake Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Client Intake Form",
+        "formDescription": "Tell us more about your business so we can get started",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Website URL",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Industry",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Business Description",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Marketing Goals",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Target Audience",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Marketing Tools",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Additional Notes",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -128,
+        128
+      ],
+      "id": "d7a49483-b38e-4eb8-bba3-cd7dbb743fa7",
+      "name": "On form submission",
+      "webhookId": "27d8b842-faf0-4ddd-9660-79d9082acbad"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "clients",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.Email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -48
+      ],
+      "id": "b1ed1ff4-9a9b-4551-a141-c87e0bed4bbf",
+      "name": "Find Client",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "eOs97ZpOKNUH3Yi0",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "clients",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Find Client').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "onboarding_status",
+              "fieldValue": "intake_received"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        528,
+        128
+      ],
+      "id": "7b7eb48f-ea68-4eae-9400-e70168f5dd3a",
+      "name": "Update Onboarding Status",
+      "credentials": {
+        "supabaseApi": {
+          "id": "eOs97ZpOKNUH3Yi0",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "client_intake",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "client_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $('On form submission').item.json['Website URL'] }}"
+            },
+            {
+              "fieldId": "industry",
+              "fieldValue": "={{ $('On form submission').item.json['Industry'] }}"
+            },
+            {
+              "fieldId": "business_description",
+              "fieldValue": "={{ $('On form submission').item.json['Business Description'] }}"
+            },
+            {
+              "fieldId": "marketing_goals",
+              "fieldValue": "={{ $('On form submission').item.json['Marketing Goals'] }}"
+            },
+            {
+              "fieldId": "target_audience",
+              "fieldValue": "={{ $('On form submission').item.json['Target Audience'] }}"
+            },
+            {
+              "fieldId": "marketing_tools",
+              "fieldValue": "={{ $('On form submission').item.json['Marketing Tools'] }}"
+            },
+            {
+              "fieldId": "additional_notes",
+              "fieldValue": "={{ $('On form submission').item.json['Additional Notes'] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        512,
+        -192
+      ],
+      "id": "30c83e98-bf18-43c2-8596-84641648c35e",
+      "name": "Inserting Client Data",
+      "credentials": {
+        "supabaseApi": {
+          "id": "eOs97ZpOKNUH3Yi0",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "value": "https://app.notion.com/p/AgencyFlow-Clients-3d152de1185580a381b1f7e2fec17517?source=copy_link",
+          "mode": "url"
+        },
+        "title": "{{ $('Find Client').item.json.company_name }}",
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "{{ $('Find Client').item.json.service }}"
+            },
+            {
+              "textContent": "={{ $('On form submission').item.json['Website URL'] }}"
+            },
+            {
+              "textContent": "={{ $('On form submission').item.json['Marketing Goals'] }}"
+            },
+            {
+              "textContent": "Onboarding"
+            },
+            {
+              "type": "to_do",
+              "textContent": "Review client intake form"
+            },
+            {
+              "type": "to_do",
+              "textContent": "Review business information"
+            },
+            {
+              "type": "to_do",
+              "textContent": "Request required account access"
+            },
+            {
+              "type": "to_do",
+              "textContent": "Create campaign strategy"
+            },
+            {
+              "type": "to_do",
+              "textContent": "Schedule kickoff meeting"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        720,
+        272
+      ],
+      "id": "10fc982b-4da7-40cc-96c0-13858d617ba1",
+      "name": "Create a page",
+      "credentials": {
+        "notionApi": {
+          "id": "0YxJ6qReCDy7f2Jy",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "codewithfarhan07@gmail.com",
+        "toEmail": "codewithfarhan07@gmail.com",
+        "subject": "New Client Onboarding Completed",
+        "html": "=🎉 New client onboarding is complete.<br><br> Client: {{ $('Find Client').item.json.company_name }}<br><br> Service: {{ $('Find Client').item.json.service }}<br><br> Website: {{ $('On form submission').item.json['Website URL'] }}<br><br> The project workspace and onboarding tasks have been created.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        848,
+        -64
+      ],
+      "id": "a4f7930b-8587-4379-91a7-72ee694b346a",
+      "name": "Send an Email",
+      "webhookId": "486b3a33-569c-47da-a062-c038ba52e7dd",
+      "credentials": {
+        "smtp": {
+          "id": "gIdgHY48yLH5STTa",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "clients",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Find Client').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "onboarding_status",
+              "fieldValue": "completed"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        80
+      ],
+      "id": "c37c2b6b-7ba9-4934-b89e-4c95ef8f6f14",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "eOs97ZpOKNUH3Yi0",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b3ae78cc-b8e9-4664-9766-f89cbf2e72dc",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        -144
+      ],
+      "id": "bf527b20-e70c-4c1c-96ae-2654c55f6295",
+      "name": "Client Found?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        288,
+        144
+      ],
+      "id": "d8d721ab-00c8-4aa7-af4b-c13ce45b023b",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "fromEmail": "codewithfarhan07@gmail.com",
+        "toEmail": "codewithfarhan07@gmail.com",
+        "subject": "AgencyFlow Error - Notion Integration Failed ",
+        "emailFormat": "=html",
+        "html": "=A Notion page creation failed for client: {{ $('Find Client').item.json.company_name }}.<br><br>Error: {{ $json.error }}<br><br>Please create their workspace manually and investigate.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        944,
+        368
+      ],
+      "id": "81615f1a-1b70-4909-9192-a4e9c5830c32",
+      "name": "Send an Email1",
+      "webhookId": "2155314c-4667-4088-8dc7-ec4df99a1a65",
+      "credentials": {
+        "smtp": {
+          "id": "gIdgHY48yLH5STTa",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Find Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Client": {
+      "main": [
+        [
+          {
+            "node": "Client Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inserting Client Data": {
+      "main": [
+        [
+          {
+            "node": "Update Onboarding Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Onboarding Status": {
+      "main": [
+        [
+          {
+            "node": "Create a page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a page": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send an Email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Client Found?": {
+      "main": [
+        [
+          {
+            "node": "Inserting Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f073379c-03f5-4ada-9a8a-c2e8fdfcccd7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b0cfee14665af0b55242b7392a2beead508d6933eb9884059ba61c7572e78855"
+  },
+  "nodeGroups": [],
+  "id": "qZ8dqRrdqNx835sw",
+  "tags": []
+}
