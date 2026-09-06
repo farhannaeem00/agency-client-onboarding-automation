@@ -6,47 +6,83 @@ AgencyFlow is built around a single automation engine (n8n) that orchestrates da
 
 ## High-Level Data Flow
 
-```
-                 ┌──────────────┐
-                 │  New Client  │
-                 │     Form     │
-                 └──────┬───────┘
-                        │
-                        ▼
-                 ┌──────────────┐
-                 │     n8n      │
-                 │  Workflow 1  │
-                 └──────┬───────┘
-                        │
-                        ▼
-                 ┌──────────────┐
-                 │   Supabase   │
-                 │ Client Record│
-                 └──────┬───────┘
-                        │
-                        ▼
-                 ┌──────────────┐
-                 │    Gmail     │
-                 │ Welcome Email│
-                 └──────────────┘
+AgencyFlow uses two connected workflows that automate different stages of the client onboarding journey.
 
+### Complete Onboarding Journey
 
-                 ┌──────────────┐
-                 │ Client Intake│
-                 │     Form     │
-                 └──────┬───────┘
-                        │
-                        ▼
-                 ┌──────────────┐
-                 │     n8n      │
-                 │  Workflow 2  │
-                 └──────┬───────┘
-                        │
-          ┌─────────────┼─────────────┐
-          ▼             ▼             ▼
-      Supabase        Notion        Gmail
-     Store Data   Create Project  Notify Team
 ```
+                         NEW CLIENT
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │ New Client Form │
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │ Workflow 1      │
+                    │ Client Onboarding│
+                    └────────┬────────┘
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │    Supabase     │
+                    │ Client Record   │
+                    └────────┬────────┘
+                             │
+                  ┌──────────┴──────────┐
+                  ▼                     ▼
+          Welcome Email          Update Status
+          + Intake Link        waiting_for_intake
+                  │
+                  ▼
+           ┌───────────────┐
+           │ Client Intake │
+           │     Form      │
+           └───────┬───────┘
+                   │
+                   ▼
+          ┌──────────────────┐
+          │   Workflow 2     │
+          │ Intake Processing│
+          └────────┬─────────┘
+                   │
+                   ▼
+          ┌──────────────────┐
+          │    Supabase      │
+          │ Store Intake +   │
+          │ Update Status    │
+          └────────┬─────────┘
+                   │
+        ┌──────────┼──────────┐
+        ▼          ▼          ▼
+   ┌────────┐ ┌──────────┐ ┌─────────┐
+   │ Notion │ │ Supabase │ │  Gmail  │
+   │Client  │ │  Status  │ │  Team   │
+   │Workspace│ │Completed │ │Notification│
+   └────────┘ └──────────┘ └─────────┘
+```
+
+### Error Handling Flow
+
+```
+Any Workflow Step
+        │
+        ▼
+Integration or Processing Error
+        │
+        ▼
+Error Handling Logic
+        │
+        ▼
+Error Notification
+        │
+        ▼
+Agency Admin
+```
+
+This architecture keeps Supabase as the central source of truth while allowing Workflow 1 and Workflow 2 to operate independently at different stages of the onboarding process.
+
 
 ## Components
 
