@@ -126,10 +126,8 @@ Example:
 
 ```text
 new
- ↓
+↓
 onboarding_started
- ↓
-waiting_for_intake
 ```
 
 ---
@@ -372,11 +370,7 @@ new
  ↓
 onboarding_started
  ↓
-waiting_for_intake
- ↓
 intake_received
- ↓
-project_created
  ↓
 completed
 ```
